@@ -23,12 +23,13 @@ import java.util.List;
 import docencia.xaviersastre.taskmanager.DetailActivity;
 import docencia.xaviersastre.taskmanager.R;
 import docencia.xaviersastre.taskmanager.adapter.TaskAdapter;
+import docencia.xaviersastre.taskmanager.database.DatabaseHelper;
 import docencia.xaviersastre.taskmanager.model.Task;
 
 public class TaskFragment extends Fragment implements TaskAdapter.OnTaskClickListener {
     private TaskAdapter adapter;
     private List<Task> taskList = new ArrayList<>();
-    private int nextId = 1;
+    private DatabaseHelper dbHelper;
 
     private final ActivityResultLauncher<Intent> detailLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -38,15 +39,19 @@ public class TaskFragment extends Fragment implements TaskAdapter.OnTaskClickLis
                     boolean deleted = data.getBooleanExtra("deleted", false);
 
                     if (deleted && pos >= 0 && pos < taskList.size()) {
+                        Task taskToDelete = taskList.get(pos);
+                        dbHelper.deleteTask(taskToDelete.getId());
                         adapter.removeTask(pos);
                     } else {
                         Task updated = (Task) data.getSerializableExtra("updated_task");
                         if (updated != null) {
                             if (pos == -1) {
-                                updated = new Task(nextId++, updated.getTitle(),
+                                long id = dbHelper.addTask(updated);
+                                updated = new Task((int) id, updated.getTitle(),
                                         updated.getDescription(), updated.getPriority());
                                 adapter.addTask(updated);
                             } else {
+                                dbHelper.updateTask(updated);
                                 adapter.updateTask(pos, updated);
                             }
                         }
@@ -59,12 +64,22 @@ public class TaskFragment extends Fragment implements TaskAdapter.OnTaskClickLis
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_task, container, false);
 
-        if (taskList.isEmpty()) {
-            taskList.add(new Task(1, "Comprar llet", "2L", "HIGH"));
-            taskList.add(new Task(2, "Estudiar Android", "Capítol 5", "MED"));
-            taskList.add(new Task(3, "Fer esport", "Correr 30min", "LOW"));
+        if (getContext() != null) {
+            dbHelper = new DatabaseHelper(getContext());
+            taskList = dbHelper.getAllTasks();
         }
-        nextId = taskList.stream().mapToInt(Task::getId).max().orElse(0) + 1;
+
+        if (taskList.isEmpty()) {
+            Task t1 = new Task(0, "Comprar llet", "2L", "HIGH");
+            Task t2 = new Task(0, "Estudiar Android", "Capítol 5", "MED");
+            Task t3 = new Task(0, "Fer esport", "Correr 30min", "LOW");
+            t1 = new Task((int) dbHelper.addTask(t1), t1.getTitle(), t1.getDescription(), t1.getPriority());
+            t2 = new Task((int) dbHelper.addTask(t2), t2.getTitle(), t2.getDescription(), t2.getPriority());
+            t3 = new Task((int) dbHelper.addTask(t3), t3.getTitle(), t3.getDescription(), t3.getPriority());
+            taskList.add(t1);
+            taskList.add(t2);
+            taskList.add(t3);
+        }
 
         adapter = new TaskAdapter(taskList, this);
         RecyclerView recyclerView = v.findViewById(R.id.recyclerViewTasks);
@@ -92,6 +107,7 @@ public class TaskFragment extends Fragment implements TaskAdapter.OnTaskClickLis
     @Override
     public void onTaskLongClick(Task task, int pos) {
         task.setCompleted(!task.isCompleted());
+        dbHelper.updateTask(task);
         adapter.updateTask(pos, task);
         Intent br = new Intent("com.example.TASK_COMPLETED");
         br.putExtra("task_title", task.getTitle());
