@@ -67,4 +67,15 @@ public class TaskAdapter extends RecyclerView.Adapter<docencia.xaviersastre.task
         tasks.set(pos, t);
         notifyItemChanged(pos);
     }
+
+    public void addTask(Task t) {
+        tasks.add(t);
+        notifyItemInserted(tasks.size() - 1);
+    }
+
+    public void removeTask(int pos) {
+        tasks.remove(pos);
+        notifyItemRemoved(pos);
+        notifyItemRangeChanged(pos, tasks.size());
+    }
 }
