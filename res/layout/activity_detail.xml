@@ -2,5 +2,8 @@
     <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar_detail" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:background="?attr/colorPrimary" android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
     <EditText android:id="@+id/etTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Títol" android:layout_marginTop="16dp"/>
     <EditText android:id="@+id/etDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Descripció" android:layout_marginTop="8dp"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Prioritat" android:layout_marginTop="16dp"/>
+    <Spinner android:id="@+id/spinnerPriority" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
     <Button android:id="@+id/btnSave" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Desar" android:layout_marginTop="24dp"/>
+    <Button android:id="@+id/btnDelete" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Eliminar" android:layout_marginTop="8dp" android:backgroundTint="@color/red_delete"/>
 </LinearLayout>

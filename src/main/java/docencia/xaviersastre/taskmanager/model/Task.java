@@ -19,4 +19,5 @@ public class Task implements Serializable {
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
     public String getPriority() { return priority; }
+    public void setPriority(String priority) { this.priority = priority; }
 }

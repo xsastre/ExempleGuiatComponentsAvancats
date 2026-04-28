@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +28,28 @@ import docencia.xaviersastre.taskmanager.model.Task;
 public class TaskFragment extends Fragment implements TaskAdapter.OnTaskClickListener {
     private TaskAdapter adapter;
     private List<Task> taskList = new ArrayList<>();
+    private int nextId = 4;
+
     private final ActivityResultLauncher<Intent> detailLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
-                    Task updated = (Task) result.getData().getSerializableExtra("updated_task");
-                    int pos = result.getData().getIntExtra("position", -1);
-                    if (pos != -1 && updated != null) {
-                        adapter.updateTask(pos, updated);
+                    Intent data = result.getData();
+                    int pos = data.getIntExtra("position", -1);
+                    boolean deleted = data.getBooleanExtra("deleted", false);
+
+                    if (deleted && pos >= 0 && pos < taskList.size()) {
+                        adapter.removeTask(pos);
+                    } else {
+                        Task updated = (Task) data.getSerializableExtra("updated_task");
+                        if (updated != null) {
+                            if (pos == -1) {
+                                updated = new Task(nextId++, updated.getTitle(),
+                                        updated.getDescription(), updated.getPriority());
+                                adapter.addTask(updated);
+                            } else {
+                                adapter.updateTask(pos, updated);
+                            }
+                        }
                     }
                 }
             });
@@ -52,6 +69,14 @@ public class TaskFragment extends Fragment implements TaskAdapter.OnTaskClickLis
         RecyclerView recyclerView = v.findViewById(R.id.recyclerViewTasks);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
+
+        FloatingActionButton fab = v.findViewById(R.id.fabAddTask);
+        fab.setOnClickListener(btn -> {
+            Intent intent = new Intent(getContext(), DetailActivity.class);
+            intent.putExtra("position", -1);
+            detailLauncher.launch(intent);
+        });
+
         return v;
     }
 
