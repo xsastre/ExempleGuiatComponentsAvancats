@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Task Manager</string>
+    <string name="add_task_description">Afegir tasca</string>
 </resources>

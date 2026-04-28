@@ -28,7 +28,7 @@ import docencia.xaviersastre.taskmanager.model.Task;
 public class TaskFragment extends Fragment implements TaskAdapter.OnTaskClickListener {
     private TaskAdapter adapter;
     private List<Task> taskList = new ArrayList<>();
-    private int nextId = 4;
+    private int nextId = 1;
 
     private final ActivityResultLauncher<Intent> detailLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -64,6 +64,7 @@ public class TaskFragment extends Fragment implements TaskAdapter.OnTaskClickLis
             taskList.add(new Task(2, "Estudiar Android", "Capítol 5", "MED"));
             taskList.add(new Task(3, "Fer esport", "Correr 30min", "LOW"));
         }
+        nextId = taskList.stream().mapToInt(Task::getId).max().orElse(0) + 1;
 
         adapter = new TaskAdapter(taskList, this);
         RecyclerView recyclerView = v.findViewById(R.id.recyclerViewTasks);
